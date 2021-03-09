@@ -35,7 +35,7 @@
 
     <div class="container p-4">
 
-        @forelse ($publication->comments as $comment)
+        @forelse ($comments as $comment)
            <h4>  {{ $comment->user->name }}</h4>
            <p>  {{ $comment->content }} </p>
 

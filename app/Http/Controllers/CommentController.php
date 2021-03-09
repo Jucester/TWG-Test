@@ -2,33 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Comment;
+use App\Mail\CommentAdded;
 use App\Models\Publication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class CommentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-       
-    }
-
+    
     /**
      * Store a newly created resource in storage.
      *
@@ -37,7 +21,7 @@ class CommentController extends Controller
      */
     public function store(Request $request, $publicationId)
     {
-        //dd($request->all());
+        // dd($request->all());
         // Validar los datos
         $data = $request->validate([
             'content' => 'required'
@@ -46,6 +30,13 @@ class CommentController extends Controller
         $user_id = Auth::user()->id;
         $publication_id = (int)$publicationId;
 
+        // Se comprueba si el usuario ya comento la publicación
+        $commented = Comment::where('publication_id', $publication_id)->where('user_id', $user_id)->first();
+
+        if($commented) {
+            // Si ya comentó, es redireccionado. Es una capa adicional de validación solo por si acaso
+            return redirect()->action('App\Http\Controllers\PublicationController@show', $publication_id);
+        }
 
         Comment::create([
             'content' => $data['content'],
@@ -53,43 +44,15 @@ class CommentController extends Controller
             'publication_id' => $publication_id
         ]);
 
-        return redirect()->action('App\Http\Controllers\PublicationController@index');
+        $post = Publication::where('id', $publication_id)->first();
+        $user = User::where('id', $post->user_id)->first();
+
+        #Mail::to($user->email)->send(new CommentAdded($data['content']));
+
+        return redirect()->action('App\Http\Controllers\PublicationController@show', $publication_id);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Comment  $comment
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Comment $comment)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Comment  $comment
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Comment $comment)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Comment  $comment
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Comment $comment)
-    {
-        //
-    }
-
+ 
     /**
      * Remove the specified resource from storage.
      *
@@ -98,6 +61,19 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment)
     {
-        //
+        // Eliminar un comentario
+        $comment->delete();
+        return redirect()->action('App\Http\Controllers\PublicationController@index');
+    }
+
+
+    // Aprobar un comentario
+    public function approve(Comment $comment)
+    {
+ 
+        $comment->status = "APROBADO";
+        $comment->save();
+
+        return redirect()->action('App\Http\Controllers\PublicationController@index');
     }
 }

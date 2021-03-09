@@ -22,7 +22,7 @@
                 
             </li>
         @empty
-            <li> No se han hecho publicaciones aún </li>
+            <h3> No se han hecho publicaciones aún </h3>
         @endforelse
     </ul>
 

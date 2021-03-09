@@ -28,8 +28,7 @@
                     rows="3" 
                     placeholder="Escribe algo..."
                     value={{ old('content') }}
-                >
-                </textarea>
+                ></textarea>
                 @error('content')
                     <span class="invalid-feedback d-block" role="alert"> <strong> {{ $message }} </strong> </span>
                 @enderror

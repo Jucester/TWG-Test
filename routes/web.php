@@ -41,11 +41,14 @@ Route::group(['middleware' => ['auth']], function() {
     // Ruta para mostrar todas las publicaciones de un usuario
     Route::get('/profile', 'App\Http\Controllers\PublicationController@profile')->name('publications.profile');
 
-
-
     // Rutas para comentarios
     Route::post('/publications/{publicationId}/comment', 'App\Http\Controllers\CommentController@store')->name('comment.store');
 
+    // Ruta para aprobar comentarios
+    Route::get('/publications/{publication}/comments', 'App\Http\Controllers\PublicationController@comments')->name('publications.comments');
+    Route::get('/comments/{comment}/approve', 'App\Http\Controllers\CommentController@approve')->name('comment.approve');
+    Route::delete('/comments/{comment}', 'App\Http\Controllers\CommentController@destroy')->name('comment.destroy');
     
+
 });
 

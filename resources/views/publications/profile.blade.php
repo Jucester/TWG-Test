@@ -19,6 +19,7 @@
                 <thead class="bg-primary text-light">
                     <tr>
                         <th scole="col"> Titulo </th>
+                        <th scole="col"> Comentarios </th>
                         <th scole="col"> Acciones </th>
                     </tr>
                 </thead>
@@ -28,9 +29,12 @@
 
                     <tr>
                         <td> {{ $publication->title }} </td>
-                        <td>
+                        <td> {{ count($publication->comments) }} </td>
+                        <td class="d-flex">
                             <a href="{{ route('publications.show', ['publication' => $publication->id] ) }}" class="btn btn-success mr-1"> Ver </a>
                             <a href="{{ route('publications.edit', ['publication' => $publication->id] ) }}" class="btn btn-dark mr-1 "> Editar </a>
+                            <a href="{{ route('publications.comments', ['publication' => $publication->id] ) }}" class="btn btn-secondary mr-1 "> Comentarios </a>
+                            
                             <form action="{{ route('publications.destroy', ['publication' => $publication->id] ) }}" method="POST">
                                 @csrf
                                 @method('DELETE')

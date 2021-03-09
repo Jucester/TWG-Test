@@ -23,7 +23,13 @@ class PublicationController extends Controller
         return view('publications.index', compact('publications'));
     }
 
-
+    /**
+     * Display a listing of the resource from the authenticated user
+     * 
+     * No es un "Profile" realmente, solo lo nombre así para hacer referencia a que sería, en espiritu, el dashboard donde el user vería sus publicaciones
+     * 
+     * @return \Illuminate\Http\Response
+     */
     public function profile(User $user)
     {
         // Listar publicaciones del usuario authenticado
@@ -41,7 +47,6 @@ class PublicationController extends Controller
     public function create()
     {
         // Render form
-        
         return view('publications.create');
     }
 
@@ -75,13 +80,12 @@ class PublicationController extends Controller
      */
     public function show(Publication $publication)
     {
-        // Show the specific publication
-        $comments = Comment::where('publication_id', $publication->id)->get();
-
+        // Show the comments of a specific publication
+        $comments = Comment::where('publication_id', $publication->id)->where('status', 'APROBADO')->get();
         // Check if authenticated user already commented this post
-        $commented = Comment::where('user_id', Auth::user()->id)->first() ? true : false;
+        $commented = Comment::where('publication_id', $publication->id)
+                        ->where('user_id', Auth::user()->id)->first() ? true : false;
 
-        
         return view('publications.show', compact('publication', 'comments', 'commented'));
     }
 
@@ -122,7 +126,7 @@ class PublicationController extends Controller
 
         $publication->save();
 
-        return redirect()->action('App\Http\Controllers\PublicationController@index');
+        return redirect()->action('App\Http\Controllers\PublicationController@show', $publication->id);
     }
 
     /**
@@ -137,8 +141,20 @@ class PublicationController extends Controller
        $this->authorize('update', $publication);
        
        $publication->delete();
-       
-       return redirect()->action('App\Http\Controllers\PublicationController@index');
 
+       return redirect()->action('App\Http\Controllers\PublicationController@index');
     }
+
+
+    // Funciones adicionales
+
+    // Renderizar una vista con una lista de los comentarios de una publicación
+    public function comments(Publication $publication)
+    {
+        $comments = Comment::where('publication_id', $publication->id)->get();
+
+        return view('publications.comments', compact('comments'));
+    }
+
+    
 }
