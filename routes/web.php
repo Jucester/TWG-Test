@@ -14,13 +14,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('home');
 });
 
 Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
 
 // Protected routes
 Route::group(['middleware' => ['auth']], function() {
@@ -32,8 +29,17 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/publications/create', 'App\Http\Controllers\PublicationController@create')->name('publications.create');
     Route::post('/publications', 'App\Http\Controllers\PublicationController@store')->name('publications.store');
 
-    // Ruta para mostrar ver la publicación 
+    // Ruta para mostrar la publicación 
     Route::get('/publications/{publication}', 'App\Http\Controllers\PublicationController@show')->name('publications.show');
+
+    // Ruta para obtener la vista de edición (get) y la ruta de actualizar en la DB (put) de la publicación
+    Route::get('/publications/{publication}/edit', 'App\Http\Controllers\PublicationController@edit')->name('publications.edit');
+    Route::put('/publications/{publication}', 'App\Http\Controllers\PublicationController@update')->name('publications.update');
+    // Ruta para eliminar una publicación
+    Route::delete('/publications/{publication}', 'App\Http\Controllers\PublicationController@destroy')->name('publications.destroy');
+
+    // Ruta para mostrar todas las publicaciones de un usuario
+    Route::get('/profile', 'App\Http\Controllers\PublicationController@profile')->name('publications.profile');
 
 
 

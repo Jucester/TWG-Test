@@ -23,7 +23,7 @@
         
                     <div class="text-dark mt-4 p-4">
                         <p class="lh-base fs-4">
-                            {{ $publication->text }}
+                            {{ $publication->content }}
                         </p>  
                     </div>
     
@@ -37,7 +37,8 @@
 
         @forelse ($publication->comments as $comment)
            <h4>  {{ $comment->user->name }}</h4>
-           <p>  {{ $comment->text }} </p>
+           <p>  {{ $comment->content }} </p>
+
         @empty
             No se han añadido comentarios aún. ¡Sé el primero!
         @endforelse
@@ -46,16 +47,22 @@
 
     <div>
 
-        <form action="{{ route('comment.store', ['publicationId' => $publication->id] ) }}" method="POST">
-            @csrf
+        @if ($commented == true)
+            <p> Ya has comentado esta publicación. Solo se permite un comentario por usuario. </p>
+        @else 
+            <form action="{{ route('comment.store', ['publicationId' => $publication->id] ) }}" method="POST">
+                @csrf
 
-            <div class="mb-3">
-                <label for="comment" class="form-label"> Añade un comentario: </label>
-                <textarea class="form-control" name="comment" rows="3"></textarea>
-            </div>
+                <div class="mb-3">
+                    <label for="content" class="form-label"> Añade un comentario: </label>
+                    <textarea class="form-control" name="content" rows="3"></textarea>
+                </div>
 
-            <button type="submit" class="btn btn-primary"> Añadir  </button>
-        </form>
+                <button type="submit" class="btn btn-primary"> Añadir  </button>
+            </form>
+        @endif
+
+ 
     </div>
 
 @endsection

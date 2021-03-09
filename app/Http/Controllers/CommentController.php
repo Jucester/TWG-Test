@@ -40,7 +40,7 @@ class CommentController extends Controller
         //dd($request->all());
         // Validar los datos
         $data = $request->validate([
-            'comment' => 'required'
+            'content' => 'required'
         ]);
 
         $user_id = Auth::user()->id;
@@ -48,7 +48,7 @@ class CommentController extends Controller
 
 
         Comment::create([
-            'text' => $data['comment'],
+            'content' => $data['content'],
             'user_id' => $user_id,
             'publication_id' => $publication_id
         ]);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Comment;
 use App\Models\Publication;
 use Illuminate\Http\Request;
@@ -18,8 +19,19 @@ class PublicationController extends Controller
     {
         // Listar publicaciones
         $publications = Publication::all();
+
         return view('publications.index', compact('publications'));
     }
+
+
+    public function profile(User $user)
+    {
+        // Listar publicaciones del usuario authenticado
+        $publications = Publication::where('user_id', Auth::user()->id)->get();
+
+        return view('publications.profile', compact('publications'));
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -44,12 +56,12 @@ class PublicationController extends Controller
         // Validar los datos
         $data = $request->validate([
             'title' => 'required',
-            'text' => 'required'
+            'content' => 'required'
         ]);
 
         auth()->user()->publications()->create([
             'title' => $data['title'],
-            'text' => $data['text']
+            'content' => $data['content']
         ]);
 
         return redirect()->action('App\Http\Controllers\PublicationController@index');
@@ -66,7 +78,11 @@ class PublicationController extends Controller
         // Show the specific publication
         $comments = Comment::where('publication_id', $publication->id)->get();
 
-        return view('publications.show', compact('publication', 'comments'));
+        // Check if authenticated user already commented this post
+        $commented = Comment::where('user_id', Auth::user()->id)->first() ? true : false;
+
+        
+        return view('publications.show', compact('publication', 'comments', 'commented'));
     }
 
     /**
@@ -77,7 +93,10 @@ class PublicationController extends Controller
      */
     public function edit(Publication $publication)
     {
-        //
+        // Revisar la policy para que solo el creador pueda ver el formulario de edición
+        $this->authorize('view', $publication);
+
+        return view('publications.edit', compact('publication'));
     }
 
     /**
@@ -89,7 +108,21 @@ class PublicationController extends Controller
      */
     public function update(Request $request, Publication $publication)
     {
-        //
+        // Revisar la policty (para comprobar que el usuario que intenta actualizar es el creador)
+        $this->authorize('update', $publication);
+
+        // Validar los datos
+        $data = $request->validate([
+            'title' => 'required',
+            'content' => 'required'
+        ]);
+
+        $publication->title = $data['title'];
+        $publication->content = $data['content'];
+
+        $publication->save();
+
+        return redirect()->action('App\Http\Controllers\PublicationController@index');
     }
 
     /**
@@ -100,6 +133,12 @@ class PublicationController extends Controller
      */
     public function destroy(Publication $publication)
     {
-        //
+       // Revisar la policty (para comprobar que el usuario que intenta eliminar es el creador)
+       $this->authorize('update', $publication);
+       
+       $publication->delete();
+       
+       return redirect()->action('App\Http\Controllers\PublicationController@index');
+
     }
 }
