@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Comment;
+use App\Models\Publication;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
@@ -24,7 +26,7 @@ class CommentController extends Controller
      */
     public function create()
     {
-        //
+       
     }
 
     /**
@@ -33,9 +35,25 @@ class CommentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, $publicationId)
     {
-        //
+        //dd($request->all());
+        // Validar los datos
+        $data = $request->validate([
+            'comment' => 'required'
+        ]);
+
+        $user_id = Auth::user()->id;
+        $publication_id = (int)$publicationId;
+
+
+        Comment::create([
+            'text' => $data['comment'],
+            'user_id' => $user_id,
+            'publication_id' => $publication_id
+        ]);
+
+        return redirect()->action('App\Http\Controllers\PublicationController@index');
     }
 
     /**
