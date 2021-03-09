@@ -47,7 +47,7 @@ class CommentController extends Controller
         $post = Publication::where('id', $publication_id)->first();
         $user = User::where('id', $post->user_id)->first();
 
-        #Mail::to($user->email)->send(new CommentAdded($data['content']));
+        Mail::to($user->email)->send(new CommentAdded($data['content']));
 
         return redirect()->action('App\Http\Controllers\PublicationController@show', $publication_id);
     }
